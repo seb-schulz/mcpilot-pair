@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // ReadFileArgs sind die Argumente für das read_file-Tool.
@@ -56,13 +57,20 @@ type ListFilesResult struct {
 	Files []string `json:"files"`
 }
 
-// ListFiles listet Dateien und Verzeichnisse in einem Pfad auf.
+// ListFiles listet Dateien und Verzeichnisse in einem Pfad auf, ignoriert versteckte Dateien/Verzeichnisse.
 func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error) {
 	var files []string
 	if args.Recursive {
 		err := filepath.Walk(args.Path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
+			}
+			// Ignoriere versteckte Dateien/Verzeichnisse (beginnen mit .)
+			if strings.HasPrefix(info.Name(), ".") {
+				if path == args.Path {
+					return filepath.SkipDir
+				}
+				return nil
 			}
 			files = append(files, path)
 			return nil
@@ -76,7 +84,9 @@ func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error)
 			return ListFilesResult{}, err
 		}
 		for _, info := range fileInfos {
-			files = append(files, info.Name())
+			if !strings.HasPrefix(info.Name(), ".") {
+				files = append(files, info.Name())
+			}
 		}
 	}
 	return ListFilesResult{Files: files}, nil
