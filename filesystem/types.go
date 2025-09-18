@@ -1,6 +1,6 @@
 package filesystem
 
-// FileInfo enthält Metadaten zu einer Datei.
+// FileInfo contains metadata about a file.
 type FileInfo struct {
 	Name    string `json:"name"`
 	Size    int64  `json:"size"`
@@ -8,12 +8,12 @@ type FileInfo struct {
 	ModTime int64  `json:"mod_time"`
 }
 
-// GetFileInfoArgs sind die Argumente für das get_file_info-Tool.
+// GetFileInfoArgs are the arguments for the get_file_info tool.
 type GetFileInfoArgs struct {
 	Path string `json:"path"`
 }
 
-// GetFileInfoResult ist das Ergebnis des get_file_info-Tools.
+// GetFileInfoResult is the result of the get_file_info tool.
 type GetFileInfoResult struct {
 	Info FileInfo `json:"info"`
 }

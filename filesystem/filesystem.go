@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-// ReadFileArgs sind die Argumente für das read_file-Tool.
+// ReadFileArgs are the arguments for the read_file tool.
 type ReadFileArgs struct {
 	Path string `json:"path"`
 }
 
-// ReadFileResult ist das Ergebnis des read_file-Tools.
+// ReadFileResult is the result of the read_file tool.
 type ReadFileResult struct {
 	Content string `json:"content"`
 }
 
-// ReadFile liest den Inhalt einer Datei.
+// ReadFile reads the content of a file.
 func ReadFile(ctx context.Context, args ReadFileArgs) (ReadFileResult, error) {
 	content, err := ioutil.ReadFile(args.Path)
 	if err != nil {
@@ -27,18 +27,18 @@ func ReadFile(ctx context.Context, args ReadFileArgs) (ReadFileResult, error) {
 	return ReadFileResult{Content: string(content)}, nil
 }
 
-// WriteFileArgs sind die Argumente für das write_file-Tool.
+// WriteFileArgs are the arguments for the write_file tool.
 type WriteFileArgs struct {
 	Path    string `json:"path"`
 	Content string `json:"content"`
 }
 
-// WriteFileResult ist das Ergebnis des write_file-Tools.
+// WriteFileResult is the result of the write_file tool.
 type WriteFileResult struct {
 	Success bool `json:"success"`
 }
 
-// WriteFile schreibt Inhalt in eine Datei.
+// WriteFile writes content to a file.
 func WriteFile(ctx context.Context, args WriteFileArgs) (WriteFileResult, error) {
 	if err := ioutil.WriteFile(args.Path, []byte(args.Content), 0644); err != nil {
 		return WriteFileResult{}, err
@@ -46,18 +46,18 @@ func WriteFile(ctx context.Context, args WriteFileArgs) (WriteFileResult, error)
 	return WriteFileResult{Success: true}, nil
 }
 
-// ListFilesArgs sind die Argumente für das list_files-Tool.
+// ListFilesArgs are the arguments for the list_files tool.
 type ListFilesArgs struct {
 	Path      string `json:"path"`
 	Recursive bool   `json:"recursive,omitempty"`
 }
 
-// ListFilesResult ist das Ergebnis des list_files-Tools.
+// ListFilesResult is the result of the list_files tool.
 type ListFilesResult struct {
 	Files []string `json:"files"`
 }
 
-// ListFiles listet Dateien und Verzeichnisse in einem Pfad auf, ignoriert versteckte Dateien/Verzeichnisse.
+// ListFiles lists files and directories in a path, ignoring hidden files/directories.
 func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error) {
 	var files []string
 	if args.Recursive {
@@ -65,7 +65,7 @@ func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error)
 			if err != nil {
 				return err
 			}
-			// Ignoriere versteckte Dateien/Verzeichnisse (beginnen mit .)
+			// Ignore hidden files/directories (starting with .)
 			if strings.HasPrefix(info.Name(), ".") {
 				if path == args.Path {
 					return filepath.SkipDir
@@ -92,17 +92,17 @@ func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error)
 	return ListFilesResult{Files: files}, nil
 }
 
-// FileExistsArgs sind die Argumente für das file_exists-Tool.
+// FileExistsArgs are the arguments for the file_exists tool.
 type FileExistsArgs struct {
 	Path string `json:"path"`
 }
 
-// FileExistsResult ist das Ergebnis des file_exists-Tools.
+// FileExistsResult is the result of the file_exists tool.
 type FileExistsResult struct {
 	Exists bool `json:"exists"`
 }
 
-// FileExists prüft, ob eine Datei oder ein Verzeichnis existiert.
+// FileExists checks if a file or directory exists.
 func FileExists(ctx context.Context, args FileExistsArgs) (FileExistsResult, error) {
 	_, err := os.Stat(args.Path)
 	if os.IsNotExist(err) {

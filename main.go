@@ -16,10 +16,10 @@ func main() {
 		Version: "0.1.0",
 	}, nil)
 
-	// filesystem_read_file-Tool registrieren
+	// Register the filesystem_read_file tool
 	mcp.AddTool(srv, &mcp.Tool{
 		Name:        "filesystem_read_file",
-		Description: "Liest den Inhalt einer Datei.",
+		Description: "Reads the content of a file.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, args filesystem.ReadFileArgs) (*mcp.CallToolResult, any, error) {
 		result, err := filesystem.ReadFile(ctx, args)
 		if err != nil {
@@ -32,10 +32,10 @@ func main() {
 		}, nil, nil
 	})
 
-	// filesystem_write_file-Tool registrieren
+	// Register the filesystem_write_file tool
 	mcp.AddTool(srv, &mcp.Tool{
 		Name:        "filesystem_write_file",
-		Description: "Schreibt Inhalt in eine Datei.",
+		Description: "Writes content to a file.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, args filesystem.WriteFileArgs) (*mcp.CallToolResult, any, error) {
 		_, err := filesystem.WriteFile(ctx, args)
 		if err != nil {
@@ -43,15 +43,15 @@ func main() {
 		}
 		return &mcp.CallToolResult{
 			Content: []mcp.Content{
-				&mcp.TextContent{Text: "Datei erfolgreich geschrieben."},
+				&mcp.TextContent{Text: "File written successfully."},
 			},
 		}, nil, nil
 	})
 
-	// filesystem_list_files-Tool registrieren
+	// Register the filesystem_list_files tool
 	mcp.AddTool(srv, &mcp.Tool{
 		Name:        "filesystem_list_files",
-		Description: "Listet Dateien und Verzeichnisse in einem Pfad auf.",
+		Description: "Lists files and directories in a path.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, args filesystem.ListFilesArgs) (*mcp.CallToolResult, any, error) {
 		result, err := filesystem.ListFiles(ctx, args)
 		if err != nil {
@@ -65,10 +65,10 @@ func main() {
 		}, nil, nil
 	})
 
-	// filesystem_file_exists-Tool registrieren
+	// Register the filesystem_file_exists tool
 	mcp.AddTool(srv, &mcp.Tool{
 		Name:        "filesystem_file_exists",
-		Description: "Prüft, ob eine Datei oder ein Verzeichnis existiert.",
+		Description: "Checks if a file or directory exists.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, args filesystem.FileExistsArgs) (*mcp.CallToolResult, any, error) {
 		result, err := filesystem.FileExists(ctx, args)
 		if err != nil {
@@ -82,13 +82,13 @@ func main() {
 		}, nil, nil
 	})
 
-	// HTTP-Handler registrieren
+	// Register HTTP handler
 	http.Handle("/mcp/", mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
 		return srv
 	}, nil))
 
-	log.Println("MCPilot pair Server ist bereit auf :8080")
+	log.Println("MCPilot pair server is running on :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("Serverfehler: %v", err)
+		log.Fatalf("Server error: %v", err)
 	}
 }
