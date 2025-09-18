@@ -9,8 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/seb-schulz/mcpilot-pair/filesystem"
 	"github.com/seb-schulz/mcpilot-pair/middleware/auth"
+	"github.com/seb-schulz/mcpilot-pair/tools/filesystem"
 	"github.com/seb-schulz/mcpilot-pair/tools/make"
 )
 

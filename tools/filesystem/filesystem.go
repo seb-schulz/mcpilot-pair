@@ -7,6 +7,28 @@ import (
 	"strings"
 )
 
+// getSafePath normalizes the path and ensures it is within the working directory.
+func getSafePath(path string) (string, error) {
+	// Get the absolute working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	// Normalize the input path
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
+	// Ensure the path is within the working directory
+	if !strings.HasPrefix(absPath, wd) {
+		return "", os.ErrPermission
+	}
+
+	return absPath, nil
+}
+
 // ReadFileArgs are the arguments for the read_file tool.
 type ReadFileArgs struct {
 	Path string `json:"path"`
@@ -17,9 +39,14 @@ type ReadFileResult struct {
 	Content string `json:"content"`
 }
 
-// ReadFile reads the content of a file.
+// ReadFile reads the content of a file within the working directory.
 func ReadFile(ctx context.Context, args ReadFileArgs) (ReadFileResult, error) {
-	content, err := os.ReadFile(args.Path)
+	safePath, err := getSafePath(args.Path)
+	if err != nil {
+		return ReadFileResult{}, os.ErrPermission
+	}
+
+	content, err := os.ReadFile(safePath)
 	if err != nil {
 		return ReadFileResult{}, err
 	}
@@ -37,9 +64,14 @@ type WriteFileResult struct {
 	Success bool `json:"success"`
 }
 
-// WriteFile writes content to a file.
+// WriteFile writes content to a file within the working directory.
 func WriteFile(ctx context.Context, args WriteFileArgs) (WriteFileResult, error) {
-	if err := os.WriteFile(args.Path, []byte(args.Content), 0644); err != nil {
+	safePath, err := getSafePath(args.Path)
+	if err != nil {
+		return WriteFileResult{}, os.ErrPermission
+	}
+
+	if err := os.WriteFile(safePath, []byte(args.Content), 0644); err != nil {
 		return WriteFileResult{}, err
 	}
 	return WriteFileResult{Success: true}, nil
@@ -56,17 +88,22 @@ type ListFilesResult struct {
 	Files []string `json:"files"`
 }
 
-// ListFiles lists files and directories in a path, ignoring hidden files/directories.
+// ListFiles lists files and directories within the working directory.
 func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error) {
+	safePath, err := getSafePath(args.Path)
+	if err != nil {
+		return ListFilesResult{}, os.ErrPermission
+	}
+
 	var files []string
 	if args.Recursive {
-		err := filepath.Walk(args.Path, func(path string, info os.FileInfo, err error) error {
+		err := filepath.Walk(safePath, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 			// Ignore hidden files/directories (starting with .)
 			if strings.HasPrefix(info.Name(), ".") {
-				if path == args.Path {
+				if path == safePath {
 					return filepath.SkipDir
 				}
 				return nil
@@ -78,7 +115,7 @@ func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error)
 			return ListFilesResult{}, err
 		}
 	} else {
-		fileInfos, err := os.ReadDir(args.Path)
+		fileInfos, err := os.ReadDir(safePath)
 		if err != nil {
 			return ListFilesResult{}, err
 		}
@@ -101,9 +138,14 @@ type FileExistsResult struct {
 	Exists bool `json:"exists"`
 }
 
-// FileExists checks if a file or directory exists.
+// FileExists checks if a file or directory exists within the working directory.
 func FileExists(ctx context.Context, args FileExistsArgs) (FileExistsResult, error) {
-	_, err := os.Stat(args.Path)
+	safePath, err := getSafePath(args.Path)
+	if err != nil {
+		return FileExistsResult{}, os.ErrPermission
+	}
+
+	_, err = os.Stat(safePath)
 	if os.IsNotExist(err) {
 		return FileExistsResult{Exists: false}, nil
 	}
