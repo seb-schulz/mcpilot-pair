@@ -6,13 +6,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/seb-schulz/mcpilot-pair/filesystem"
+	"github.com/seb-schulz/mcpilot-pair/middleware/auth"
 	"github.com/seb-schulz/mcpilot-pair/tools/make"
 )
 
 func main() {
-
 	srv := mcp.NewServer(&mcp.Implementation{
 		Name:    "mcpilot-pair",
 		Version: "0.2.0",
@@ -102,13 +104,18 @@ func main() {
 		}, nil, nil
 	})
 
-	// Register HTTP handler
-	http.Handle("/mcp/", mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// MCP-Handler registrieren
+	r.With(auth.APIKeyMiddleware).Handle("/mcp/*", mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
+		log.Println(req.Header)
 		return srv
 	}, nil))
 
 	log.Println("MCPilot pair server is running on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
 }
