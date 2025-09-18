@@ -2,7 +2,6 @@ package filesystem
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,7 +19,7 @@ type ReadFileResult struct {
 
 // ReadFile reads the content of a file.
 func ReadFile(ctx context.Context, args ReadFileArgs) (ReadFileResult, error) {
-	content, err := ioutil.ReadFile(args.Path)
+	content, err := os.ReadFile(args.Path)
 	if err != nil {
 		return ReadFileResult{}, err
 	}
@@ -40,7 +39,7 @@ type WriteFileResult struct {
 
 // WriteFile writes content to a file.
 func WriteFile(ctx context.Context, args WriteFileArgs) (WriteFileResult, error) {
-	if err := ioutil.WriteFile(args.Path, []byte(args.Content), 0644); err != nil {
+	if err := os.WriteFile(args.Path, []byte(args.Content), 0644); err != nil {
 		return WriteFileResult{}, err
 	}
 	return WriteFileResult{Success: true}, nil
@@ -79,7 +78,7 @@ func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error)
 			return ListFilesResult{}, err
 		}
 	} else {
-		fileInfos, err := ioutil.ReadDir(args.Path)
+		fileInfos, err := os.ReadDir(args.Path)
 		if err != nil {
 			return ListFilesResult{}, err
 		}
