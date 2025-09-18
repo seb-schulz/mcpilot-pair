@@ -8,12 +8,14 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/seb-schulz/mcpilot-pair/filesystem"
+	"github.com/seb-schulz/mcpilot-pair/tools/make"
 )
 
 func main() {
+
 	srv := mcp.NewServer(&mcp.Implementation{
 		Name:    "mcpilot-pair",
-		Version: "0.1.0",
+		Version: "0.2.0",
 	}, nil)
 
 	// Register the filesystem_read_file tool
@@ -71,6 +73,24 @@ func main() {
 		Description: "Checks if a file or directory exists.",
 	}, func(ctx context.Context, req *mcp.CallToolRequest, args filesystem.FileExistsArgs) (*mcp.CallToolResult, any, error) {
 		result, err := filesystem.FileExists(ctx, args)
+		log.Println("filesystem_file_exists", result, err)
+		if err != nil {
+			return nil, nil, err
+		}
+		jsonData, _ := json.Marshal(result)
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{
+				&mcp.TextContent{Text: string(jsonData)},
+			},
+		}, nil, nil
+	})
+
+	// Register the make_run tool
+	mcp.AddTool(srv, &mcp.Tool{
+		Name:        "make_run",
+		Description: "Executes `make -C <directory> <target>` in a bash environment. Allowed targets: all, build, test, clean.",
+	}, func(ctx context.Context, req *mcp.CallToolRequest, args make.RunMakeArgs) (*mcp.CallToolResult, any, error) {
+		result, err := make.RunMake(ctx, args)
 		if err != nil {
 			return nil, nil, err
 		}
