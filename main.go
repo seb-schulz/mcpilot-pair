@@ -110,7 +110,6 @@ func main() {
 
 	// MCP-Handler registrieren
 	r.With(auth.APIKeyMiddleware).Handle("/mcp/*", mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
-		log.Println(req.Header)
 		return srv
 	}, nil))
 
