@@ -57,6 +57,17 @@ The MCP server can be connected to various LLMs, including:
 - **ChatGPT:** – not supported yet.
   ChatGPT supports MCP servers only in a limited capacity. Check their documentation about details.
 
+**Set up a custom connector in Le Chat (3 steps):**
+
+1. **Open Connectors**:
+   In Le Chat, click the _toggle panel_ → _Intelligence_ → _Connectors_ → **+ Add Connector** → _Custom MCP Connector_.
+
+2. **Configure API**:
+   Enter your API endpoint, auth method (API key).
+
+3. **Test & save** - now use it in chat with:
+   _“Ask [Connector Name] for [your query].”_
+
 ## Contributing
 
 Pull requests are welcome! Make sure to:
