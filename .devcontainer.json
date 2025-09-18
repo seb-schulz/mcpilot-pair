@@ -1,0 +1,15 @@
+{
+  "name": "mcpilot-pair",
+  "image": "ghcr.io/sebatec-eu/go-devcontainer:1@sha256:3797b4d4f4c49ae3565069aa4e4f10ba69ec1c80c450e01617374081585f0af6",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": []
+    }
+  },
+  "forwardPorts": [],
+  "runArgs": ["--userns=keep-id"],
+  "postCreateCommand": "go version",
+  "containerUser": "vscode"
+}
