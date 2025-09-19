@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -102,6 +103,30 @@ func main() {
 				&mcp.TextContent{Text: string(jsonData)},
 			},
 		}, nil, nil
+	})
+
+	// Registriere die Search-Funktion als Tool
+	mcp.AddTool(srv, &mcp.Tool{
+		Name:        "search",
+		Description: "Search for a regex pattern in files within the working directory. Returns a list of files with line numbers and matching lines.",
+	}, func(ctx context.Context, req *mcp.CallToolRequest, args filesystem.SearchArgs) (*mcp.CallToolResult, filesystem.SearchResult, error) {
+		result, err := filesystem.Search(ctx, args)
+		if err != nil {
+			return nil, filesystem.SearchResult{}, fmt.Errorf("search failed: %v", err)
+		}
+		return &mcp.CallToolResult{}, result, nil
+	})
+
+	// Registriere fetch als Alias für filesystem_read_file
+	mcp.AddTool(srv, &mcp.Tool{
+		Name:        "fetch",
+		Description: "Alias for filesystem_read_file. Reads the content of a file within the working directory.",
+	}, func(ctx context.Context, req *mcp.CallToolRequest, args filesystem.ReadFileArgs) (*mcp.CallToolResult, filesystem.ReadFileResult, error) {
+		result, err := filesystem.ReadFile(ctx, args)
+		if err != nil {
+			return nil, filesystem.ReadFileResult{}, fmt.Errorf("fetch failed: %v", err)
+		}
+		return &mcp.CallToolResult{}, result, nil
 	})
 
 	r := chi.NewRouter()
