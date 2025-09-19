@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,10 +16,46 @@ import (
 	"github.com/seb-schulz/mcpilot-pair/tools/make"
 )
 
+func prompt(ctx context.Context, req *mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
+	return &mcp.GetPromptResult{
+		Description: "Hi prompt",
+		Messages: []*mcp.PromptMessage{
+			{
+				Role:    "user",
+				Content: &mcp.TextContent{Text: "Say hi to " + req.Params.Arguments["name"]},
+			},
+		},
+	}, nil
+}
+
+var embeddedResources = map[string]string{
+	"info": "This is the hello example server.",
+}
+
+func embeddedResource(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.ReadResourceResult, error) {
+	u, err := url.Parse(req.Params.URI)
+	if err != nil {
+		return nil, err
+	}
+	if u.Scheme != "embedded" {
+		return nil, fmt.Errorf("wrong scheme: %q", u.Scheme)
+	}
+	key := u.Opaque
+	text, ok := embeddedResources[key]
+	if !ok {
+		return nil, fmt.Errorf("no embedded resource named %q", key)
+	}
+	return &mcp.ReadResourceResult{
+		Contents: []*mcp.ResourceContents{
+			{URI: req.Params.URI, MIMEType: "text/plain", Text: text},
+		},
+	}, nil
+}
+
 func main() {
 	srv := mcp.NewServer(&mcp.Implementation{
 		Name:    "mcpilot-pair",
-		Version: "0.2.0",
+		Version: "0.3.0",
 	}, nil)
 
 	// Register the filesystem_read_file tool
@@ -128,6 +165,14 @@ func main() {
 		}
 		return &mcp.CallToolResult{}, result, nil
 	})
+
+	srv.AddResource(&mcp.Resource{
+		Name:     "info",
+		MIMEType: "text/plain",
+		URI:      "embedded:info",
+	}, embeddedResource)
+
+	srv.AddPrompt(&mcp.Prompt{Name: "greet"}, prompt)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
