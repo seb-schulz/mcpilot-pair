@@ -11,5 +11,8 @@
   "forwardPorts": [],
   "runArgs": ["--userns=keep-id"],
   "postCreateCommand": "go version",
-  "containerUser": "vscode"
+  "containerUser": "vscode",
+  "mounts": [
+    "source=${localEnv:HOME}/.config/mcpilot-pair,target=/home/vscode/.config/mcpilot-pair,type=bind,consistency=cached"
+  ]
 }

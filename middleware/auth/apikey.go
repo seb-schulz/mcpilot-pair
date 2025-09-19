@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -17,7 +18,6 @@ func APIKeyMiddleware(next http.Handler) http.Handler {
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			http.Error(w, "Authorization header missing", http.StatusUnauthorized)
@@ -39,9 +39,19 @@ func APIKeyMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// getOrGenerateAPIKey reads the API key from the file or generates a new one.
+// getOrGenerateAPIKey reads the API key from the XDG-compliant config directory or generates a new one.
 func getOrGenerateAPIKey() (string, error) {
-	apiKeyFile := ".mcpilot-pair-api-key.txt"
+	// XDG-compliant config directory: ~/.config/mcpilot-pair/
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", fmt.Errorf("could not determine config directory: %v", err)
+	}
+	apiKeyDir := filepath.Join(configDir, "mcpilot-pair")
+	apiKeyFile := filepath.Join(apiKeyDir, "api-key.txt")
+
+	if err := os.MkdirAll(apiKeyDir, 0700); err != nil {
+		return "", fmt.Errorf("could not create config directory: %v", err)
+	}
 
 	apiKey, err := os.ReadFile(apiKeyFile)
 	if err == nil {
@@ -58,7 +68,6 @@ func getOrGenerateAPIKey() (string, error) {
 		return "", fmt.Errorf("could not save API key: %v", err)
 	}
 
-	apiKeyStr := string(apiKeyBytes)
-	fmt.Printf("\n=== MCPilot-Pair API KEY GENERATED ===\n%s\n=== COPY THIS KEY ===\n\n", apiKeyStr)
-	return apiKeyStr, nil
+	fmt.Printf("\n=== MCPilot-Pair API KEY GENERATED ===\n%s\n=== COPY THIS KEY ===\n\n", string(apiKeyBytes))
+	return string(apiKeyBytes), nil
 }
