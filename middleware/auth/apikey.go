@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 // APIKeyMiddleware verifies the API key in the `Authorization` header.
 func APIKeyMiddleware(next http.Handler) http.Handler {
 	apiKey, err := getOrGenerateAPIKey()
+	fmt.Printf("\n=== MCPilot-Pair API KEY GENERATED ===\n%s\n=== COPY THIS KEY ===\n\n", apiKey)
 	if err != nil {
 		panic("API key not configured")
 	}
@@ -26,11 +28,13 @@ func APIKeyMiddleware(next http.Handler) http.Handler {
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
+			log.Printf("invalid bearer token: %s", authHeader)
 			http.Error(w, "Invalid authorization format: expected 'Bearer <api_key>'", http.StatusUnauthorized)
 			return
 		}
 
 		if parts[1] != apiKey {
+			log.Printf("failed to verify %s != %s", parts[1], apiKey)
 			http.Error(w, "Invalid API key", http.StatusUnauthorized)
 			return
 		}
@@ -55,7 +59,7 @@ func getOrGenerateAPIKey() (string, error) {
 
 	apiKey, err := os.ReadFile(apiKeyFile)
 	if err == nil {
-		return string(apiKey), nil
+		return strings.TrimSpace(string(apiKey)), nil
 	}
 
 	key := make([]byte, 32)
@@ -68,6 +72,5 @@ func getOrGenerateAPIKey() (string, error) {
 		return "", fmt.Errorf("could not save API key: %v", err)
 	}
 
-	fmt.Printf("\n=== MCPilot-Pair API KEY GENERATED ===\n%s\n=== COPY THIS KEY ===\n\n", string(apiKeyBytes))
-	return string(apiKeyBytes), nil
+	return strings.TrimSpace(string(apiKeyBytes)), nil
 }
