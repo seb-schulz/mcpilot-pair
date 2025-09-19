@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +16,15 @@ import (
 	"github.com/seb-schulz/mcpilot-pair/tools/filesystem"
 	"github.com/seb-schulz/mcpilot-pair/tools/make"
 )
+
+var (
+	port string
+)
+
+func init() {
+	flag.StringVar(&port, "p", "8080", "Port für den Server (Standard: 8080)")
+	flag.StringVar(&port, "port", "8080", "Port für den Server (Standard: 8080)")
+}
 
 func prompt(ctx context.Context, req *mcp.GetPromptRequest) (*mcp.GetPromptResult, error) {
 	return &mcp.GetPromptResult{
@@ -53,6 +63,8 @@ func embeddedResource(_ context.Context, req *mcp.ReadResourceRequest) (*mcp.Rea
 }
 
 func main() {
+	flag.Parse()
+
 	srv := mcp.NewServer(&mcp.Implementation{
 		Name:    "mcpilot-pair",
 		Version: "0.3.0",
@@ -183,8 +195,9 @@ func main() {
 		return srv
 	}, nil))
 
-	log.Println("MCPilot pair server is running on :8080")
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	addr := ":" + port
+	log.Printf("MCPilot pair server is running on %s", addr)
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
 }

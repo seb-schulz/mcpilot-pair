@@ -17,21 +17,17 @@ Install the tool using `go install`:
 go install github.com/seb-schulz/mcpilot-pair@latest
 ```
 
-Start the server:
-
-```bash
-mcpilot-pair
-```
-
-The API key is automatically saved in `.mcpilot-pair-api-key.txt`.
-
 ## Usage
 
 ### As a Server
 
+Start the server with a custom port (default: `8080`):
+
 ```bash
-mcpilot-pair  # Starts the MCP server on port 8080
+mcpilot-pair --port 9090  # or -p 9090
 ```
+
+The **API key** is automatically generated and saved in: `~/.config/mcpilot-pair/api-key.txt` (XDG-compliant).
 
 ### Establishing a Connection
 
@@ -72,6 +68,23 @@ The MCP server can be connected to various LLMs, including:
 
 3. **Test & save** - now use it in chat with:
    _“Ask [Connector Name] for [your query].”_
+
+### Working with Dev Containers
+
+To use MCPilot Pair in a **[Dev Container](https://containers.dev/)**, mount the config directory to persist the API key:
+
+#### Example `.devcontainer.json`
+
+```json
+{
+  // [...]
+  "mounts": [
+    "source=${localEnv:HOME}/.config/mcpilot-pair,target=/home/vscode/.config/mcpilot-pair,type=bind,consistency=cached"
+  ]
+}
+```
+
+This ensures the API key is shared between host and container.
 
 ## Contributing
 
