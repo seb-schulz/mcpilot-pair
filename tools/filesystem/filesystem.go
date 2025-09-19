@@ -68,12 +68,12 @@ func containsDotSegment(rel string) bool {
 
 // ReadFileArgs are the arguments for the read_file tool.
 type ReadFileArgs struct {
-	Path string `json:"path"`
+	Path string `json:"path" jsonschema:"the file path to read within the working directory"`
 }
 
 // ReadFileResult is the result of the read_file tool.
 type ReadFileResult struct {
-	Content string `json:"content"`
+	Content string `json:"content" jsonschema:"the data read from the file"`
 }
 
 // ReadFile reads the content of a file within the working directory.
@@ -91,14 +91,15 @@ func ReadFile(ctx context.Context, args ReadFileArgs) (ReadFileResult, error) {
 	return ReadFileResult{Content: string(content)}, nil
 }
 
+// WriteFileArgs are the arguments for the write_file tool.
 type WriteFileArgs struct {
-	Path    string `json:"path" jsonschema:"title=Path,description=Target file path within the working directory. Directories are created if they do not exist.,required"`
-	Content string `json:"content" jsonschema:"title=Content,description=Data to be written to the file (e.g., text, JSON, XML).,required"`
+	Path    string `json:"path" jsonschema:"the target file path where the content will be written, directories are created if they do not exist"`
+	Content string `json:"content" jsonschema:"the data to be written to the file (e.g., text, JSON, XML)"`
 }
 
 // WriteFileResult is the result of the write_file tool.
 type WriteFileResult struct {
-	Success bool `json:"success"`
+	Success bool `json:"success" jsonschema:"indicates whether the file was written successfully"`
 }
 
 // WriteFile writes content to a file within the working directory.
@@ -127,14 +128,16 @@ func WriteFile(ctx context.Context, args WriteFileArgs) (WriteFileResult, error)
 }
 
 // ListFilesArgs are the arguments for the list_files tool.
+// The MCP server uses this schema to validate client requests and provide UI hints.
 type ListFilesArgs struct {
-	Path      string `json:"path"`
-	Recursive bool   `json:"recursive,omitempty"`
+	Path      string `json:"path" jsonschema:"the directory path to list files from"`
+	Recursive bool   `json:"recursive,omitempty" jsonschema:"if true, lists files recursively"`
 }
 
 // ListFilesResult is the result of the list_files tool.
+// Contains a list of files and directories.
 type ListFilesResult struct {
-	Files []string `json:"files"`
+	Files []string `json:"files" jsonschema:"a list of file and directory paths"`
 }
 
 // ListFiles lists files and directories within the working directory.
@@ -176,12 +179,12 @@ func ListFiles(ctx context.Context, args ListFilesArgs) (ListFilesResult, error)
 
 // FileExistsArgs are the arguments for the file_exists tool.
 type FileExistsArgs struct {
-	Path string `json:"path"`
+	Path string `json:"path" jsonschema:"the file or directory path to check"`
 }
 
 // FileExistsResult is the result of the file_exists tool.
 type FileExistsResult struct {
-	Exists bool `json:"exists"`
+	Exists bool `json:"exists" jsonschema:"indicates whether the file or directory exists"`
 }
 
 // FileExists checks if a file or directory exists within the working directory.
