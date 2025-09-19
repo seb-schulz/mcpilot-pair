@@ -91,10 +91,9 @@ func ReadFile(ctx context.Context, args ReadFileArgs) (ReadFileResult, error) {
 	return ReadFileResult{Content: string(content)}, nil
 }
 
-// WriteFileArgs are the arguments for the write_file tool.
 type WriteFileArgs struct {
-	Path    string `json:"path"`
-	Content string `json:"content"`
+	Path    string `json:"path" jsonschema:"title=Path,description=Target file path within the working directory. Directories are created if they do not exist.,required"`
+	Content string `json:"content" jsonschema:"title=Content,description=Data to be written to the file (e.g., text, JSON, XML).,required"`
 }
 
 // WriteFileResult is the result of the write_file tool.
@@ -103,6 +102,7 @@ type WriteFileResult struct {
 }
 
 // WriteFile writes content to a file within the working directory.
+// It creates directories if they do not exist.
 func WriteFile(ctx context.Context, args WriteFileArgs) (WriteFileResult, error) {
 	safePath, err := getSafePath(args.Path)
 	if err != nil {
@@ -110,9 +110,19 @@ func WriteFile(ctx context.Context, args WriteFileArgs) (WriteFileResult, error)
 		return WriteFileResult{}, fmt.Errorf("invalid path: %v", err)
 	}
 
+	// Extract the directory from the file path
+	dir := filepath.Dir(safePath)
+
+	// Create the directory if it does not exist
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return WriteFileResult{}, fmt.Errorf("failed to create directory %s: %v", dir, err)
+	}
+
+	// Write the file
 	if err := os.WriteFile(safePath, []byte(args.Content), 0644); err != nil {
 		return WriteFileResult{}, fmt.Errorf("failed to write file %s: %v", safePath, err)
 	}
+
 	return WriteFileResult{Success: true}, nil
 }
 
