@@ -1,8 +1,13 @@
 # MCPilot Pair
 
-**MCPilot Pair securely links your local dev environment to LLMs via reverse tunnels (SSH/Ngrok). Edit files, run Git commands, or execute `make test` - all while keeping control. Built on the Model Context Protocol (MCP), it’s your AI-ready co-pilot for private, efficient workflows.**
+MCPilot Pair securely links your local dev environment to LLMs via reverse tunnels (SSH/Ngrok). Edit files, run Git commands, or execute `make test` - all while keeping control. Built on the Model Context Protocol (MCP), it’s your AI-ready co-pilot for private, efficient workflows.
 
 In case you want to know more about MCP, check out <https://modelcontextprotocol.io/docs/getting-started/intro>
+
+> [!WARNING]
+> This software may **write to the local file system** and **execute scripts locally**.
+> Use with caution and at your own risk.
+> No responsibility or liability is accepted for any damages or data loss resulting from its use.
 
 ## Installation
 
