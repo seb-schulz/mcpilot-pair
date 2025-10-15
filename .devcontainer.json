@@ -1,6 +1,6 @@
 {
   "name": "mcpilot-pair",
-  "image": "ghcr.io/sebatec-eu/go-devcontainer:1@sha256:234e84af8ff91ad4723bd937784a6e05f470b7193adf708492f3edebeefe1418",
+  "image": "ghcr.io/sebatec-eu/go-devcontainer:1@sha256:341e2da1ee0597e3784f890b1112d77b41d9b299219f8203494ee1fe8f4cf3d4",
   "features": {},
   "customizations": {
     "vscode": {
