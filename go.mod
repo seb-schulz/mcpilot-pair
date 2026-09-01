@@ -8,6 +8,6 @@ require (
 )
 
 require (
-	github.com/go-chi/chi/v5 v5.2.3
+	github.com/go-chi/chi/v5 v5.3.2
 	github.com/modelcontextprotocol/go-sdk v1.0.0
 )
